@@ -1,0 +1,230 @@
+// nodes.js — defines all block types, their ports and fields
+
+const NODE_DEFS = {
+
+  // ── CONTROL ──────────────────────────────────────────
+  start: {
+    category: 'control',
+    title: 'When Started',
+    icon: '▶',
+    inputs: [],
+    outputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
+    fields: [],
+    description: 'Entry point — runs when program starts'
+  },
+
+  repeat: {
+    category: 'control',
+    title: 'Repeat',
+    icon: '↺',
+    inputs: [
+      { id: 'exec', label: 'exec', flow: 'exec' },
+      { id: 'times', label: 'times', flow: 'data', valueType: 'number' }
+    ],
+    outputs: [
+      { id: 'loop', label: 'loop', flow: 'exec' },
+      { id: 'done', label: 'done', flow: 'exec' }
+    ],
+    fields: [{ id: 'times', label: 'Times', type: 'number', default: 10 }],
+  },
+
+  wait: {
+    category: 'control',
+    title: 'Wait',
+    icon: '⏱',
+    inputs: [
+      { id: 'exec', label: 'exec', flow: 'exec' },
+      { id: 'ms', label: 'ms', flow: 'data', valueType: 'number' }
+    ],
+    outputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
+    fields: [{ id: 'ms', label: 'ms', type: 'number', default: 500 }],
+  },
+
+  if: {
+    category: 'control',
+    title: 'If',
+    icon: '◇',
+    inputs: [
+      { id: 'exec', label: 'exec', flow: 'exec' },
+      { id: 'cond', label: 'condition', flow: 'data', valueType: 'boolean' }
+    ],
+    outputs: [
+      { id: 'true', label: 'true', flow: 'exec' },
+      { id: 'false', label: 'false', flow: 'exec' }
+    ],
+    fields: [],
+  },
+
+  // ── MOTION ───────────────────────────────────────────
+  move: {
+    category: 'motion',
+    title: 'Move',
+    icon: '→',
+    inputs: [
+      { id: 'exec', label: 'exec', flow: 'exec' },
+      { id: 'steps', label: 'steps', flow: 'data', valueType: 'number' }
+    ],
+    outputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
+    fields: [{ id: 'steps', label: 'Steps', type: 'number', default: 10 }],
+  },
+
+  turn: {
+    category: 'motion',
+    title: 'Turn',
+    icon: '↻',
+    inputs: [
+      { id: 'exec', label: 'exec', flow: 'exec' },
+      { id: 'degrees', label: 'degrees', flow: 'data', valueType: 'number' }
+    ],
+    outputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
+    fields: [{ id: 'degrees', label: 'Degrees', type: 'number', default: 15 }],
+  },
+
+  goto: {
+    category: 'motion',
+    title: 'Go To',
+    icon: '⊕',
+    inputs: [
+      { id: 'exec', label: 'exec', flow: 'exec' },
+      { id: 'x', label: 'x', flow: 'data', valueType: 'number' },
+      { id: 'y', label: 'y', flow: 'data', valueType: 'number' }
+    ],
+    outputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
+    fields: [
+      { id: 'x', label: 'X', type: 'number', default: 120 },
+      { id: 'y', label: 'Y', type: 'number', default: 90 }
+    ],
+  },
+
+  bounce: {
+    category: 'motion',
+    title: 'Bounce',
+    icon: '⟳',
+    inputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
+    outputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
+    fields: [],
+  },
+
+  // ── LOOKS ────────────────────────────────────────────
+  say: {
+    category: 'looks',
+    title: 'Say',
+    icon: '💬',
+    inputs: [
+      { id: 'exec', label: 'exec', flow: 'exec' },
+      { id: 'text', label: 'text', flow: 'data', valueType: 'string' }
+    ],
+    outputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
+    fields: [{ id: 'text', label: 'Text', type: 'text', default: 'Hello!' }],
+  },
+
+  setcolor: {
+    category: 'looks',
+    title: 'Set Color',
+    icon: '🎨',
+    inputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
+    outputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
+    fields: [{ id: 'color', label: 'Color', type: 'color', default: '#7c6af5' }],
+  },
+
+  setsize: {
+    category: 'looks',
+    title: 'Set Size',
+    icon: '⤢',
+    inputs: [
+      { id: 'exec', label: 'exec', flow: 'exec' },
+      { id: 'size', label: 'size', flow: 'data', valueType: 'number' }
+    ],
+    outputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
+    fields: [{ id: 'size', label: 'Size', type: 'number', default: 20 }],
+  },
+
+  // ── MATH ─────────────────────────────────────────────
+  number: {
+    category: 'math',
+    title: 'Number',
+    icon: '#',
+    inputs: [],
+    outputs: [{ id: 'value', label: 'value', flow: 'data', valueType: 'number' }],
+    fields: [{ id: 'value', label: 'Value', type: 'number', default: 10 }],
+  },
+
+  add: {
+    category: 'math',
+    title: 'Add',
+    icon: '+',
+    inputs: [
+      { id: 'a', label: 'a', flow: 'data', valueType: 'number' },
+      { id: 'b', label: 'b', flow: 'data', valueType: 'number' }
+    ],
+    outputs: [{ id: 'result', label: 'result', flow: 'data', valueType: 'number' }],
+    fields: [
+      { id: 'a', label: 'A', type: 'number', default: 0 },
+      { id: 'b', label: 'B', type: 'number', default: 0 }
+    ],
+  },
+
+  multiply: {
+    category: 'math',
+    title: 'Multiply',
+    icon: '×',
+    inputs: [
+      { id: 'a', label: 'a', flow: 'data', valueType: 'number' },
+      { id: 'b', label: 'b', flow: 'data', valueType: 'number' }
+    ],
+    outputs: [{ id: 'result', label: 'result', flow: 'data', valueType: 'number' }],
+    fields: [
+      { id: 'a', label: 'A', type: 'number', default: 1 },
+      { id: 'b', label: 'B', type: 'number', default: 1 }
+    ],
+  },
+
+  random: {
+    category: 'math',
+    title: 'Random',
+    icon: '⚄',
+    inputs: [
+      { id: 'min', label: 'min', flow: 'data', valueType: 'number' },
+      { id: 'max', label: 'max', flow: 'data', valueType: 'number' }
+    ],
+    outputs: [{ id: 'result', label: 'result', flow: 'data', valueType: 'number' }],
+    fields: [
+      { id: 'min', label: 'Min', type: 'number', default: 1 },
+      { id: 'max', label: 'Max', type: 'number', default: 100 }
+    ],
+  },
+
+  // ── SENSING ──────────────────────────────────────────
+  keypressed: {
+    category: 'sensing',
+    title: 'Key Pressed?',
+    icon: '⌨',
+    inputs: [],
+    outputs: [{ id: 'pressed', label: 'pressed', flow: 'data', valueType: 'boolean' }],
+    fields: [{ id: 'key', label: 'Key', type: 'select', default: 'ArrowRight', options: [
+      { value: 'ArrowRight', label: '→ Right' },
+      { value: 'ArrowLeft', label: '← Left' },
+      { value: 'ArrowUp', label: '↑ Up' },
+      { value: 'ArrowDown', label: '↓ Down' },
+      { value: ' ', label: 'Space' },
+    ]}],
+  },
+
+  getx: {
+    category: 'sensing',
+    title: 'Get X',
+    icon: 'X',
+    inputs: [],
+    outputs: [{ id: 'x', label: 'x', flow: 'data', valueType: 'number' }],
+    fields: [],
+  },
+
+  gety: {
+    category: 'sensing',
+    title: 'Get Y',
+    icon: 'Y',
+    inputs: [],
+    outputs: [{ id: 'y', label: 'y', flow: 'data', valueType: 'number' }],
+    fields: [],
+  },
+};

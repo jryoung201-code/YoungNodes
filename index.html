@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NodeScratch</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Toolbar -->
+    <header id="toolbar">
+      <div id="logo">
+        <span class="logo-icon">⬡</span>
+        <span class="logo-text">NodeScratch</span>
+      </div>
+      <div id="toolbar-actions">
+        <button id="btn-run" class="btn btn-run">▶ Run</button>
+        <button id="btn-stop" class="btn btn-stop" disabled>■ Stop</button>
+        <button id="btn-clear" class="btn btn-ghost">✕ Clear</button>
+      </div>
+      <div id="toolbar-info">
+        <span id="status-text">Ready</span>
+      </div>
+    </header>
+
+    <!-- Block palette -->
+    <aside id="palette">
+      <div class="palette-section">
+        <div class="palette-label">CONTROL</div>
+        <div class="palette-block" data-type="start" draggable="true">
+          <span class="block-icon">▶</span> When Started
+        </div>
+        <div class="palette-block" data-type="repeat" draggable="true">
+          <span class="block-icon">↺</span> Repeat
+        </div>
+        <div class="palette-block" data-type="wait" draggable="true">
+          <span class="block-icon">⏱</span> Wait
+        </div>
+        <div class="palette-block" data-type="if" draggable="true">
+          <span class="block-icon">◇</span> If
+        </div>
+      </div>
+      <div class="palette-section">
+        <div class="palette-label">MOTION</div>
+        <div class="palette-block" data-type="move" draggable="true">
+          <span class="block-icon">→</span> Move
+        </div>
+        <div class="palette-block" data-type="turn" draggable="true">
+          <span class="block-icon">↻</span> Turn
+        </div>
+        <div class="palette-block" data-type="goto" draggable="true">
+          <span class="block-icon">⊕</span> Go To
+        </div>
+        <div class="palette-block" data-type="bounce" draggable="true">
+          <span class="block-icon">⟳</span> Bounce
+        </div>
+      </div>
+      <div class="palette-section">
+        <div class="palette-label">LOOKS</div>
+        <div class="palette-block" data-type="say" draggable="true">
+          <span class="block-icon">💬</span> Say
+        </div>
+        <div class="palette-block" data-type="setcolor" draggable="true">
+          <span class="block-icon">🎨</span> Set Color
+        </div>
+        <div class="palette-block" data-type="setsize" draggable="true">
+          <span class="block-icon">⤢</span> Set Size
+        </div>
+      </div>
+      <div class="palette-section">
+        <div class="palette-label">MATH</div>
+        <div class="palette-block" data-type="number" draggable="true">
+          <span class="block-icon">#</span> Number
+        </div>
+        <div class="palette-block" data-type="add" draggable="true">
+          <span class="block-icon">+</span> Add
+        </div>
+        <div class="palette-block" data-type="multiply" draggable="true">
+          <span class="block-icon">×</span> Multiply
+        </div>
+        <div class="palette-block" data-type="random" draggable="true">
+          <span class="block-icon">⚄</span> Random
+        </div>
+      </div>
+      <div class="palette-section">
+        <div class="palette-label">SENSING</div>
+        <div class="palette-block" data-type="keypressed" draggable="true">
+          <span class="block-icon">⌨</span> Key Pressed?
+        </div>
+        <div class="palette-block" data-type="getx" draggable="true">
+          <span class="block-icon">X</span> Get X
+        </div>
+        <div class="palette-block" data-type="gety" draggable="true">
+          <span class="block-icon">Y</span> Get Y
+        </div>
+      </div>
+    </aside>
+
+    <!-- Canvas area -->
+    <main id="canvas-area">
+      <svg id="wire-layer" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="canvas"></div>
+      <div id="canvas-hint">Drag blocks from the left panel onto the canvas, then connect their ports</div>
+    </main>
+
+    <!-- Stage (sprite output) -->
+    <aside id="stage-panel">
+      <div class="stage-header">Stage</div>
+      <canvas id="stage" width="240" height="180"></canvas>
+      <div id="log-panel">
+        <div class="log-header">Console</div>
+        <div id="log-output"></div>
+      </div>
+    </aside>
+  </div>
+
+  <script src="nodes.js"></script>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
