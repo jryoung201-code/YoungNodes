@@ -128,6 +128,7 @@
       border-color: var(--accent);
     }
     .field-group textarea { resize: vertical; min-height: 60px; }
+    .field-group textarea.code { font-family: 'Space Mono', monospace; min-height: 140px; }
 
     /* Port editor */
     .port-list { display: flex; flex-direction: column; gap: 6px; }
@@ -326,9 +327,19 @@ function selectBlock(type) {
 }
 
 // ── RENDER EDITOR ──────────────────────────────────────
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"]+/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;'
+  })[ch] || ch);
+}
+
 function renderEditor(type) {
   const def = blocks[type];
   const editor = document.getElementById('editor');
+  const jsCode = escapeHtml(def.js || '');
 
   editor.innerHTML = `
     <div class="editor-title">
@@ -363,6 +374,10 @@ function renderEditor(type) {
         <div class="field-group full">
           <label>Description</label>
           <textarea id="f-description">${def.description || ''}</textarea>
+        </div>
+        <div class="field-group full">
+          <label>JavaScript</label>
+          <textarea id="f-js" class="code">${jsCode}</textarea>
         </div>
       </div>
     </div>
@@ -514,6 +529,7 @@ function collectBlockData() {
     title: document.getElementById('f-title').value.trim(),
     icon: document.getElementById('f-icon').value.trim(),
     description: document.getElementById('f-description').value.trim(),
+    js: document.getElementById('f-js').value,
     inputs: collectPorts('inputs-list'),
     outputs: collectPorts('outputs-list'),
     fields: collectFields('fields-list'),
@@ -586,6 +602,7 @@ document.getElementById('add-block-btn').addEventListener('click', () => {
     title: 'New Block',
     icon: '★',
     description: '',
+    js: '',
     inputs: [],
     outputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
     fields: [],

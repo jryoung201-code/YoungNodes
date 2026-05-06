@@ -3,6 +3,7 @@
     "category": "control",
     "title": "When Started",
     "icon": "▶",
+    "js": "",
     "inputs": [],
     "outputs": [{ "id": "exec", "label": "exec", "flow": "exec" }],
     "fields": [],
@@ -13,6 +14,7 @@
     "category": "control",
     "title": "Repeat",
     "icon": "↺",
+    "js": "",
     "inputs": [
       { "id": "exec", "label": "exec", "flow": "exec" },
       { "id": "times", "label": "times", "flow": "data", "valueType": "number" }
@@ -28,6 +30,7 @@
     "category": "control",
     "title": "Wait",
     "icon": "⏱",
+    "js": "",
     "inputs": [
       { "id": "exec", "label": "exec", "flow": "exec" },
       { "id": "ms", "label": "ms", "flow": "data", "valueType": "number" }
@@ -40,6 +43,7 @@
     "category": "control",
     "title": "If",
     "icon": "◇",
+    "js": "",
     "inputs": [
       { "id": "exec", "label": "exec", "flow": "exec" },
       { "id": "cond", "label": "condition", "flow": "data", "valueType": "boolean" }
@@ -55,6 +59,7 @@
     "category": "motion",
     "title": "Move",
     "icon": "→",
+    "js": "",
     "inputs": [
       { "id": "exec", "label": "exec", "flow": "exec" },
       { "id": "steps", "label": "steps", "flow": "data", "valueType": "number" }
@@ -67,6 +72,7 @@
     "category": "motion",
     "title": "Turn",
     "icon": "↻",
+    "js": "",
     "inputs": [
       { "id": "exec", "label": "exec", "flow": "exec" },
       { "id": "degrees", "label": "degrees", "flow": "data", "valueType": "number" }
@@ -79,6 +85,7 @@
     "category": "motion",
     "title": "Go To",
     "icon": "⊕",
+    "js": "",
     "inputs": [
       { "id": "exec", "label": "exec", "flow": "exec" },
       { "id": "x", "label": "x", "flow": "data", "valueType": "number" },
@@ -95,6 +102,7 @@
     "category": "motion",
     "title": "Bounce",
     "icon": "⟳",
+    "js": "",
     "inputs": [{ "id": "exec", "label": "exec", "flow": "exec" }],
     "outputs": [{ "id": "exec", "label": "exec", "flow": "exec" }],
     "fields": []
@@ -104,6 +112,7 @@
     "category": "looks",
     "title": "Say",
     "icon": "💬",
+    "js": "",
     "inputs": [
       { "id": "exec", "label": "exec", "flow": "exec" },
       { "id": "text", "label": "text", "flow": "data", "valueType": "string" }
@@ -116,6 +125,7 @@
     "category": "looks",
     "title": "Set Color",
     "icon": "🎨",
+    "js": "",
     "inputs": [{ "id": "exec", "label": "exec", "flow": "exec" }],
     "outputs": [{ "id": "exec", "label": "exec", "flow": "exec" }],
     "fields": [{ "id": "color", "label": "Color", "type": "color", "default": "#7c6af5" }]
@@ -125,6 +135,7 @@
     "category": "looks",
     "title": "Set Size",
     "icon": "⤢",
+    "js": "",
     "inputs": [
       { "id": "exec", "label": "exec", "flow": "exec" },
       { "id": "size", "label": "size", "flow": "data", "valueType": "number" }
@@ -137,6 +148,7 @@
     "category": "math",
     "title": "Number",
     "icon": "#",
+    "js": "",
     "inputs": [],
     "outputs": [{ "id": "value", "label": "value", "flow": "data", "valueType": "number" }],
     "fields": [{ "id": "value", "label": "Value", "type": "number", "default": 10 }]
@@ -146,6 +158,7 @@
     "category": "math",
     "title": "Add",
     "icon": "+",
+    "js": "",
     "inputs": [
       { "id": "a", "label": "a", "flow": "data", "valueType": "number" },
       { "id": "b", "label": "b", "flow": "data", "valueType": "number" }
@@ -161,6 +174,7 @@
     "category": "math",
     "title": "Multiply",
     "icon": "×",
+    "js": "",
     "inputs": [
       { "id": "a", "label": "a", "flow": "data", "valueType": "number" },
       { "id": "b", "label": "b", "flow": "data", "valueType": "number" }
@@ -176,6 +190,7 @@
     "category": "math",
     "title": "Random",
     "icon": "⚄",
+    "js": "",
     "inputs": [
       { "id": "min", "label": "min", "flow": "data", "valueType": "number" },
       { "id": "max", "label": "max", "flow": "data", "valueType": "number" }
@@ -191,6 +206,7 @@
     "category": "sensing",
     "title": "Key Pressed?",
     "icon": "⌨",
+    "js": "",
     "inputs": [],
     "outputs": [{ "id": "pressed", "label": "pressed", "flow": "data", "valueType": "boolean" }],
     "fields": [{ "id": "key", "label": "Key", "type": "select", "default": "ArrowRight", "options": [
@@ -206,6 +222,7 @@
     "category": "sensing",
     "title": "Get X",
     "icon": "X",
+    "js": "",
     "inputs": [],
     "outputs": [{ "id": "x", "label": "x", "flow": "data", "valueType": "number" }],
     "fields": []
@@ -215,6 +232,7 @@
     "category": "sensing",
     "title": "Get Y",
     "icon": "Y",
+    "js": "",
     "inputs": [],
     "outputs": [{ "id": "y", "label": "y", "flow": "data", "valueType": "number" }],
     "fields": []
