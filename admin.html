@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NodeScratch — Block Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0b10;
+      --surface: #13131a;
+      --surface2: #1a1a24;
+      --surface3: #22222f;
+      --border: #2a2a3d;
+      --accent: #7c6af5;
+      --accent2: #f56a6a;
+      --accent3: #6af5b8;
+      --accent4: #f5c46a;
+      --text: #e8e8f0;
+      --text-dim: #6e6e8a;
+      --text-dimmer: #3e3e5a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── HEADER ── */
+    header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 0 24px; height: 52px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .logo-icon { font-size: 20px; color: var(--accent); filter: drop-shadow(0 0 6px var(--accent)); }
+    .logo-text { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 14px; color: var(--text); }
+    .badge { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 1px; background: var(--accent); color: #fff; padding: 2px 7px; border-radius: 4px; }
+    .header-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+    .back-link { font-size: 13px; color: var(--text-dim); text-decoration: none; padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px; transition: all 0.15s; }
+    .back-link:hover { color: var(--accent); border-color: var(--accent); }
+    #save-status { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-dimmer); }
+
+    /* ── LAYOUT ── */
+    .layout { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 52px); }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+    }
+    .sidebar-header {
+      padding: 14px 16px 8px;
+      font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1px; color: var(--text-dimmer);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    #block-list { flex: 1; overflow-y: auto; padding: 6px; }
+    #block-list::-webkit-scrollbar { width: 4px; }
+    #block-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .block-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 7px; margin: 2px 0;
+      cursor: pointer; transition: all 0.1s;
+      border: 1px solid transparent;
+    }
+    .block-item:hover { background: var(--surface2); }
+    .block-item.active { background: var(--surface3); border-color: var(--accent); }
+    .block-item-icon { font-size: 14px; width: 20px; text-align: center; }
+    .block-item-info { flex: 1; min-width: 0; }
+    .block-item-title { font-size: 13px; font-weight: 500; }
+    .block-item-cat { font-size: 10px; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+    .block-item-id { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-dimmer); }
+
+    .cat-control .block-item-cat { color: #a89cf7; }
+    .cat-motion .block-item-cat { color: #79c3ff; }
+    .cat-looks .block-item-cat { color: #f57fd6; }
+    .cat-math .block-item-cat { color: #6af5b8; }
+    .cat-sensing .block-item-cat { color: #f5c46a; }
+
+    .add-block-btn {
+      margin: 10px; padding: 9px;
+      background: var(--surface2); border: 1px dashed var(--border);
+      border-radius: 8px; color: var(--text-dim);
+      font-family: 'Space Mono', monospace; font-size: 12px;
+      cursor: pointer; text-align: center; transition: all 0.15s;
+    }
+    .add-block-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+
+    /* ── EDITOR ── */
+    .editor { padding: 28px 32px; overflow-y: auto; }
+    .editor-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; gap: 12px; color: var(--text-dimmer);
+      font-style: italic; font-size: 14px;
+    }
+    .editor-empty .big { font-size: 48px; }
+
+    .editor-title {
+      font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+      margin-bottom: 24px; display: flex; align-items: center; gap: 12px;
+    }
+    .editor-title .type-badge {
+      font-size: 11px; background: var(--surface3); border: 1px solid var(--border);
+      padding: 2px 10px; border-radius: 20px; color: var(--text-dim);
+    }
+
+    .section { margin-bottom: 28px; }
+    .section-label {
+      font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1.5px;
+      color: var(--text-dimmer); margin-bottom: 12px;
+      padding-bottom: 6px; border-bottom: 1px solid var(--border);
+    }
+
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-group.full { grid-column: 1 / -1; }
+    .field-group label { font-size: 11px; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+    .field-group input, .field-group select, .field-group textarea {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 8px 10px;
+      color: var(--text); font-family: 'Space Mono', monospace; font-size: 12px;
+      outline: none; transition: border-color 0.15s; width: 100%;
+    }
+    .field-group input:focus, .field-group select:focus, .field-group textarea:focus {
+      border-color: var(--accent);
+    }
+    .field-group textarea { resize: vertical; min-height: 60px; }
+
+    /* Port editor */
+    .port-list { display: flex; flex-direction: column; gap: 6px; }
+    .port-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr 80px 32px; gap: 6px;
+      align-items: center; background: var(--surface2);
+      padding: 8px 10px; border-radius: 7px; border: 1px solid var(--border);
+    }
+    .port-row input, .port-row select {
+      background: var(--surface3); border: 1px solid var(--border);
+      border-radius: 5px; padding: 5px 8px;
+      color: var(--text); font-family: 'Space Mono', monospace; font-size: 11px;
+      outline: none; width: 100%;
+    }
+    .port-row input:focus, .port-row select:focus { border-color: var(--accent); }
+    .port-row .port-flow-exec { color: var(--accent); }
+    .port-row .port-flow-data { color: var(--accent3); }
+    .del-btn {
+      width: 28px; height: 28px; background: transparent;
+      border: 1px solid var(--border); border-radius: 5px;
+      color: var(--text-dimmer); cursor: pointer; font-size: 13px;
+      display: flex; align-items: center; justify-content: center; transition: all 0.1s;
+    }
+    .del-btn:hover { background: var(--accent2); border-color: var(--accent2); color: white; }
+    .add-port-btn {
+      padding: 6px 12px; background: transparent; border: 1px dashed var(--border);
+      border-radius: 6px; color: var(--text-dim);
+      font-family: 'Space Mono', monospace; font-size: 11px;
+      cursor: pointer; transition: all 0.15s; align-self: flex-start; margin-top: 4px;
+    }
+    .add-port-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+
+    /* Fields editor */
+    .field-def-list { display: flex; flex-direction: column; gap: 6px; }
+    .field-def-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 32px; gap: 6px;
+      align-items: center; background: var(--surface2);
+      padding: 8px 10px; border-radius: 7px; border: 1px solid var(--border);
+    }
+    .field-def-row input, .field-def-row select {
+      background: var(--surface3); border: 1px solid var(--border);
+      border-radius: 5px; padding: 5px 8px;
+      color: var(--text); font-family: 'Space Mono', monospace; font-size: 11px;
+      outline: none; width: 100%;
+    }
+    .field-def-row input:focus, .field-def-row select:focus { border-color: var(--accent); }
+
+    /* Action bar */
+    .action-bar {
+      display: flex; gap: 10px; align-items: center;
+      padding: 16px 0; border-top: 1px solid var(--border); margin-top: 8px;
+    }
+    .btn {
+      padding: 8px 18px; border: none; border-radius: 7px;
+      font-family: 'Space Mono', monospace; font-size: 12px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: white; font-weight: 700; }
+    .btn-primary:hover { filter: brightness(1.15); }
+    .btn-danger { background: transparent; border: 1px solid var(--accent2); color: var(--accent2); }
+    .btn-danger:hover { background: var(--accent2); color: white; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* JSON preview */
+    .json-preview {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px; margin-top: 12px;
+      font-family: 'Space Mono', monospace; font-size: 11px;
+      color: var(--accent3); white-space: pre-wrap; overflow-x: auto;
+      max-height: 240px; overflow-y: auto; line-height: 1.6;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--surface2); border: 1px solid var(--accent3);
+      color: var(--accent3); padding: 10px 18px;
+      border-radius: 8px; font-family: 'Space Mono', monospace; font-size: 12px;
+      opacity: 0; transform: translateY(8px); transition: all 0.25s;
+      pointer-events: none; z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.error { border-color: var(--accent2); color: var(--accent2); }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">
+    <span class="logo-icon">⬡</span>
+    <span class="logo-text">NodeScratch</span>
+  </a>
+  <span class="badge">ADMIN</span>
+  <div class="header-right">
+    <span id="save-status">All changes saved to blocks.json</span>
+    <a href="index.html" class="back-link">← Back to Editor</a>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span>BLOCKS (<span id="block-count">0</span>)</span>
+    </div>
+    <div id="block-list"></div>
+    <div class="add-block-btn" id="add-block-btn">+ New Block</div>
+  </aside>
+
+  <main class="editor" id="editor">
+    <div class="editor-empty">
+      <div class="big">⬡</div>
+      <div>Select a block to edit, or create a new one</div>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────
+let blocks = {};
+let selectedType = null;
+
+// ── LOAD ───────────────────────────────────────────────
+async function loadBlocks() {
+  try {
+    const res = await fetch('blocks.json?nocache=' + Date.now());
+    blocks = await res.json();
+    renderList();
+  } catch (e) {
+    toast('Failed to load blocks.json', true);
+  }
+}
+
+// ── SAVE (downloads file) ──────────────────────────────
+function saveBlocks() {
+  const json = JSON.stringify(blocks, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'blocks.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('blocks.json downloaded — replace the file in your project!');
+  document.getElementById('save-status').textContent = 'Downloaded ✓';
+}
+
+// ── RENDER SIDEBAR LIST ────────────────────────────────
+function renderList() {
+  const list = document.getElementById('block-list');
+  list.innerHTML = '';
+  document.getElementById('block-count').textContent = Object.keys(blocks).length;
+
+  const catOrder = ['control', 'motion', 'looks', 'math', 'sensing'];
+  const grouped = {};
+  for (const [type, def] of Object.entries(blocks)) {
+    const c = def.category || 'other';
+    if (!grouped[c]) grouped[c] = [];
+    grouped[c].push({ type, ...def });
+  }
+
+  const cats = [...catOrder.filter(c => grouped[c]), ...Object.keys(grouped).filter(c => !catOrder.includes(c))];
+
+  for (const cat of cats) {
+    if (!grouped[cat]) continue;
+    const catLabel = document.createElement('div');
+    catLabel.style.cssText = 'padding:8px 12px 3px;font-family:Space Mono,monospace;font-size:9px;letter-spacing:1.5px;color:var(--text-dimmer)';
+    catLabel.textContent = cat.toUpperCase();
+    list.appendChild(catLabel);
+
+    grouped[cat].forEach(block => {
+      const item = document.createElement('div');
+      item.className = `block-item cat-${block.category}`;
+      if (block.type === selectedType) item.classList.add('active');
+      item.innerHTML = `
+        <span class="block-item-icon">${block.icon || '?'}</span>
+        <div class="block-item-info">
+          <div class="block-item-title">${block.title}</div>
+          <div class="block-item-cat">${block.category}</div>
+        </div>
+        <span class="block-item-id">${block.type}</span>
+      `;
+      item.addEventListener('click', () => selectBlock(block.type));
+      list.appendChild(item);
+    });
+  }
+}
+
+// ── SELECT BLOCK ───────────────────────────────────────
+function selectBlock(type) {
+  selectedType = type;
+  renderList();
+  renderEditor(type);
+}
+
+// ── RENDER EDITOR ──────────────────────────────────────
+function renderEditor(type) {
+  const def = blocks[type];
+  const editor = document.getElementById('editor');
+
+  editor.innerHTML = `
+    <div class="editor-title">
+      <span>${def.icon || ''} ${def.title}</span>
+      <span class="type-badge">${type}</span>
+    </div>
+
+    <!-- BASIC INFO -->
+    <div class="section">
+      <div class="section-label">IDENTITY</div>
+      <div class="field-grid">
+        <div class="field-group">
+          <label>Block ID (type key)</label>
+          <input id="f-type" value="${type}" placeholder="e.g. move">
+        </div>
+        <div class="field-group">
+          <label>Title</label>
+          <input id="f-title" value="${def.title || ''}" placeholder="Display name">
+        </div>
+        <div class="field-group">
+          <label>Icon (emoji or text)</label>
+          <input id="f-icon" value="${def.icon || ''}" placeholder="→">
+        </div>
+        <div class="field-group">
+          <label>Category</label>
+          <select id="f-category">
+            ${['control','motion','looks','math','sensing','other'].map(c =>
+              `<option value="${c}" ${def.category === c ? 'selected' : ''}>${c}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="field-group full">
+          <label>Description</label>
+          <textarea id="f-description">${def.description || ''}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- INPUT PORTS -->
+    <div class="section">
+      <div class="section-label">INPUT PORTS</div>
+      <div class="port-list" id="inputs-list"></div>
+      <button class="add-port-btn" id="add-input-btn">+ Add Input Port</button>
+    </div>
+
+    <!-- OUTPUT PORTS -->
+    <div class="section">
+      <div class="section-label">OUTPUT PORTS</div>
+      <div class="port-list" id="outputs-list"></div>
+      <button class="add-port-btn" id="add-output-btn">+ Add Output Port</button>
+    </div>
+
+    <!-- FIELDS -->
+    <div class="section">
+      <div class="section-label">EDITABLE FIELDS (shown on node)</div>
+      <div class="field-def-list" id="fields-list"></div>
+      <button class="add-port-btn" id="add-field-btn">+ Add Field</button>
+    </div>
+
+    <!-- JSON PREVIEW -->
+    <div class="section">
+      <div class="section-label">JSON PREVIEW</div>
+      <pre class="json-preview" id="json-preview"></pre>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="action-bar">
+      <button class="btn btn-primary" id="save-block-btn">💾 Apply Changes</button>
+      <button class="btn btn-ghost" id="dupe-block-btn">⧉ Duplicate</button>
+      <button class="btn btn-danger" id="delete-block-btn">🗑 Delete Block</button>
+      <button class="btn btn-primary" onclick="saveBlocks()" style="margin-left:auto">⬇ Download blocks.json</button>
+    </div>
+  `;
+
+  // Render ports and fields
+  renderPortList('inputs-list', def.inputs || [], 'input');
+  renderPortList('outputs-list', def.outputs || [], 'output');
+  renderFieldList('fields-list', def.fields || []);
+
+  // Live JSON preview
+  const updatePreview = () => {
+    try {
+      document.getElementById('json-preview').textContent =
+        JSON.stringify(collectBlockData().def, null, 2);
+    } catch(e) {}
+  };
+  editor.querySelectorAll('input,select,textarea').forEach(el => el.addEventListener('input', updatePreview));
+  updatePreview();
+
+  // Buttons
+  document.getElementById('save-block-btn').addEventListener('click', applyChanges);
+  document.getElementById('dupe-block-btn').addEventListener('click', dupeBlock);
+  document.getElementById('delete-block-btn').addEventListener('click', deleteBlock);
+  document.getElementById('add-input-btn').addEventListener('click', () => {
+    addPortRow('inputs-list', { id: 'port', label: 'port', flow: 'exec' });
+    updatePreview();
+  });
+  document.getElementById('add-output-btn').addEventListener('click', () => {
+    addPortRow('outputs-list', { id: 'out', label: 'out', flow: 'exec' });
+    updatePreview();
+  });
+  document.getElementById('add-field-btn').addEventListener('click', () => {
+    addFieldRow('fields-list', { id: 'field', label: 'Field', type: 'number', default: 0 });
+    updatePreview();
+  });
+}
+
+function renderPortList(containerId, ports, dir) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  ports.forEach(p => addPortRow(containerId, p));
+}
+
+function addPortRow(containerId, port) {
+  const container = document.getElementById(containerId);
+  const row = document.createElement('div');
+  row.className = 'port-row';
+  row.innerHTML = `
+    <input class="port-id" placeholder="id" value="${port.id || ''}">
+    <input class="port-label" placeholder="label" value="${port.label || ''}">
+    <select class="port-flow">
+      <option value="exec" ${port.flow === 'exec' ? 'selected' : ''}>exec ■</option>
+      <option value="data" ${port.flow === 'data' ? 'selected' : ''}>data ●</option>
+    </select>
+    <select class="port-valuetype">
+      <option value="" ${!port.valueType ? 'selected' : ''}>—</option>
+      <option value="number" ${port.valueType === 'number' ? 'selected' : ''}>number</option>
+      <option value="string" ${port.valueType === 'string' ? 'selected' : ''}>string</option>
+      <option value="boolean" ${port.valueType === 'boolean' ? 'selected' : ''}>boolean</option>
+    </select>
+    <button class="del-btn">✕</button>
+  `;
+  row.querySelector('.del-btn').addEventListener('click', () => {
+    row.remove();
+    updateJsonPreview();
+  });
+  row.querySelectorAll('input,select').forEach(el => el.addEventListener('input', updateJsonPreview));
+  container.appendChild(row);
+}
+
+function renderFieldList(containerId, fields) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  fields.forEach(f => addFieldRow(containerId, f));
+}
+
+function addFieldRow(containerId, field) {
+  const container = document.getElementById(containerId);
+  const row = document.createElement('div');
+  row.className = 'field-def-row';
+  row.innerHTML = `
+    <input class="field-id" placeholder="id" value="${field.id || ''}">
+    <input class="field-label" placeholder="Label" value="${field.label || ''}">
+    <select class="field-type">
+      <option value="number" ${field.type === 'number' ? 'selected' : ''}>number</option>
+      <option value="text" ${field.type === 'text' ? 'selected' : ''}>text</option>
+      <option value="color" ${field.type === 'color' ? 'selected' : ''}>color</option>
+      <option value="select" ${field.type === 'select' ? 'selected' : ''}>select</option>
+    </select>
+    <input class="field-default" placeholder="default" value="${field.default ?? ''}">
+    <button class="del-btn">✕</button>
+  `;
+  row.querySelector('.del-btn').addEventListener('click', () => {
+    row.remove();
+    updateJsonPreview();
+  });
+  row.querySelectorAll('input,select').forEach(el => el.addEventListener('input', updateJsonPreview));
+  container.appendChild(row);
+}
+
+function updateJsonPreview() {
+  const el = document.getElementById('json-preview');
+  if (el) {
+    try { el.textContent = JSON.stringify(collectBlockData().def, null, 2); } catch(e) {}
+  }
+}
+
+// ── COLLECT FORM DATA ──────────────────────────────────
+function collectBlockData() {
+  const newType = document.getElementById('f-type').value.trim().replace(/\s+/g, '_');
+  const def = {
+    category: document.getElementById('f-category').value,
+    title: document.getElementById('f-title').value.trim(),
+    icon: document.getElementById('f-icon').value.trim(),
+    description: document.getElementById('f-description').value.trim(),
+    inputs: collectPorts('inputs-list'),
+    outputs: collectPorts('outputs-list'),
+    fields: collectFields('fields-list'),
+  };
+  return { newType, def };
+}
+
+function collectPorts(containerId) {
+  return [...document.getElementById(containerId).querySelectorAll('.port-row')].map(row => {
+    const port = {
+      id: row.querySelector('.port-id').value.trim(),
+      label: row.querySelector('.port-label').value.trim(),
+      flow: row.querySelector('.port-flow').value,
+    };
+    const vt = row.querySelector('.port-valuetype').value;
+    if (vt) port.valueType = vt;
+    return port;
+  });
+}
+
+function collectFields(containerId) {
+  return [...document.getElementById(containerId).querySelectorAll('.field-def-row')].map(row => ({
+    id: row.querySelector('.field-id').value.trim(),
+    label: row.querySelector('.field-label').value.trim(),
+    type: row.querySelector('.field-type').value,
+    default: row.querySelector('.field-default').value,
+  }));
+}
+
+// ── APPLY / DUPE / DELETE ──────────────────────────────
+function applyChanges() {
+  const { newType, def } = collectBlockData();
+  if (!newType) { toast('Block ID cannot be empty', true); return; }
+
+  if (newType !== selectedType) {
+    delete blocks[selectedType];
+    selectedType = newType;
+  }
+  blocks[selectedType] = def;
+  renderList();
+  renderEditor(selectedType);
+  toast('Changes applied ✓');
+}
+
+function dupeBlock() {
+  const { def } = collectBlockData();
+  const newType = selectedType + '_copy';
+  blocks[newType] = { ...JSON.parse(JSON.stringify(def)), title: def.title + ' (Copy)' };
+  selectedType = newType;
+  renderList();
+  renderEditor(selectedType);
+  toast('Block duplicated');
+}
+
+function deleteBlock() {
+  if (!confirm(`Delete block "${selectedType}"?`)) return;
+  delete blocks[selectedType];
+  selectedType = null;
+  renderList();
+  document.getElementById('editor').innerHTML = `
+    <div class="editor-empty"><div class="big">⬡</div><div>Block deleted</div></div>`;
+  toast('Block deleted');
+}
+
+// ── ADD NEW BLOCK ──────────────────────────────────────
+document.getElementById('add-block-btn').addEventListener('click', () => {
+  const id = 'new_block_' + Date.now();
+  blocks[id] = {
+    category: 'control',
+    title: 'New Block',
+    icon: '★',
+    description: '',
+    inputs: [],
+    outputs: [{ id: 'exec', label: 'exec', flow: 'exec' }],
+    fields: [],
+  };
+  selectedType = id;
+  renderList();
+  renderEditor(id);
+  toast('New block created — give it an ID and title');
+});
+
+// ── TOAST ──────────────────────────────────────────────
+function toast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (isError ? ' error' : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = ''; }, 2800);
+}
+
+// ── INIT ──────────────────────────────────────────────
+loadBlocks();
+</script>
+</body>
+</html>
